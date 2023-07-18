@@ -112,7 +112,7 @@ func main() {
 		case apstra.CtPrimitivePolicyTypeNameAttachSingleVlan:
 			attributes := ct.Subpolicies[0].Attributes.(*apstra.ConnectivityTemplatePrimitiveAttributesAttachSingleVlan)
 			if attributes.VnNodeId == nil {
-				anomalies.WriteString(fmt.Sprintf("%s subpolicy 0 has null VN node ID\n", *ct.Id))
+				anomalies.WriteString(fmt.Sprintf("%s: subpolicy 0 has null VN node ID\n", *ct.Id))
 				continue
 			}
 

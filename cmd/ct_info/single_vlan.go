@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/Juniper/apstra-go-sdk/apstra"
 	"io"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -37,14 +38,20 @@ func singleVlanFromVn(vn *apstra.VirtualNetwork, ctId apstra.ObjectId, skipped i
 			return &k, nil // return on first/only VLAN
 		}
 	default:
-		vids := make([]string, len(vlans))
+		vidInts := make([]int, len(vlans))
 		var i int
 		for vid := range vlans {
-			vids[i] = strconv.Itoa(int(vid))
+			vidInts[i] = int(vid)
 			i++
 		}
+		sort.Ints(vidInts)
 
-		msg := fmt.Sprintf("%s: multiple VLANs: [%s]", ctId, strings.Join(vids, ", "))
+		vidStrings := make([]string, len(vlans))
+		for i = range vidInts {
+			vidStrings[i] = strconv.Itoa(vidInts[i])
+		}
+
+		msg := fmt.Sprintf("%s: multiple VLANs: [%s]", ctId, strings.Join(vidStrings, ", "))
 
 		if skipped == nil {
 			return nil, errors.New(msg)
