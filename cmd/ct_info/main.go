@@ -140,10 +140,43 @@ func main() {
 			case true:
 				mainSingleTagged[*vlan] = append(mainSingleTagged[*vlan], id)
 			case false:
-				mainSingleUntagged[*vlan] = append(mainSingleTagged[*vlan], id)
+				mainSingleUntagged[*vlan] = append(mainSingleUntagged[*vlan], id)
 			}
 		default:
 			continue
+		}
+	}
+
+	mappings := new(bytes.Buffer)
+	for vlan, ids := range accessSingleUntagged {
+		var mainIds []apstra.ObjectId
+		var ok bool
+		var result string
+		if mainIds, ok = mainSingleUntagged[vlan]; !ok {
+			result = "none"
+			continue
+		}
+
+		result = "[ " + joinIds(mainIds, ", ") + " ]"
+
+		for _, id := range ids {
+			mappings.WriteString(string(id) + " -> " + result + "\n")
+		}
+	}
+
+	for vlan, ids := range accessSingleTagged {
+		var mainIds []apstra.ObjectId
+		var ok bool
+		var result string
+		if mainIds, ok = mainSingleTagged[vlan]; !ok {
+			result = "none"
+			continue
+		}
+
+		result = "[ " + joinIds(mainIds, ", ") + " ]"
+
+		for _, id := range ids {
+			mappings.WriteString(string(id) + " -> " + result + "\n")
 		}
 	}
 
@@ -153,6 +186,11 @@ func main() {
 	}
 
 	err = fw.writeFile("_main_anomalies", anomalies.Bytes())
+	if err != nil {
+		die(err)
+	}
+
+	err = fw.writeFile("_mappings", mappings.Bytes())
 	if err != nil {
 		die(err)
 	}
