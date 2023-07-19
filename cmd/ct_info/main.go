@@ -147,36 +147,16 @@ func main() {
 		}
 	}
 
-	mappings := new(bytes.Buffer)
+	mappings := make(map[apstra.ObjectId][]apstra.ObjectId)
 	for vlan, ids := range accessSingleUntagged {
-		var mainIds []apstra.ObjectId
-		var ok bool
-		var result string
-		if mainIds, ok = mainSingleUntagged[vlan]; !ok {
-			result = "none"
-			continue
-		}
-
-		result = "[ " + joinIds(mainIds, ", ") + " ]"
-
 		for _, id := range ids {
-			mappings.WriteString(string(id) + " -> " + result + "\n")
+			mappings[id] = mainSingleUntagged[vlan]
 		}
 	}
 
 	for vlan, ids := range accessSingleTagged {
-		var mainIds []apstra.ObjectId
-		var ok bool
-		var result string
-		if mainIds, ok = mainSingleTagged[vlan]; !ok {
-			result = "none"
-			continue
-		}
-
-		result = "[ " + joinIds(mainIds, ", ") + " ]"
-
 		for _, id := range ids {
-			mappings.WriteString(string(id) + " -> " + result + "\n")
+			mappings[id] = mainSingleTagged[vlan]
 		}
 	}
 
@@ -190,7 +170,12 @@ func main() {
 		die(err)
 	}
 
-	err = fw.writeFile("_mappings", mappings.Bytes())
+	mappingBytes, err := json.Marshal(&mappings)
+	if err != nil {
+		die(err)
+	}
+
+	err = fw.writeFile("_mappings", mappingBytes)
 	if err != nil {
 		die(err)
 	}
