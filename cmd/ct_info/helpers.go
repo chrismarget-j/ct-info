@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/Juniper/apstra-go-sdk/apstra"
 	"sort"
+	"strings"
 )
 
 func compareMaps(a map[apstra.ObjectId]apstra.ConnectivityTemplate, b map[apstra.ObjectId]apstra.ConnectivityTemplateState) error {
@@ -35,4 +36,13 @@ func compareMaps(a map[apstra.ObjectId]apstra.ConnectivityTemplate, b map[apstra
 	}
 
 	return nil
+}
+
+func joinIds(in []apstra.ObjectId, s string) string {
+	ids := make([]string, len(in))
+	for i := range in {
+		ids[i] = string(in[i])
+	}
+
+	return strings.Join(ids, s)
 }
